@@ -67,6 +67,10 @@ class ProcessServer
             end
           end
           @wait_thread.join
+          loop do
+            break if stdout.eof? && stderr.eof?
+            sleep 1
+          end
         end
       rescue Exception => e
         log "spawn failed...e=" + e.inspect

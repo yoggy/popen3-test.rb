@@ -28,7 +28,11 @@ code:
             log "IO object closed...e=" + e.inspect
           end
         end
-        @wait_thread.join  # ← 実行が続くコマンドの場合、ここを忘れるとブロックをすぐ抜けていきなりstdoutなどがcloseされるので要注意… 
+        @wait_thread.join                      # ← 実行が続くコマンドの場合、ここを忘れるとブロックをすぐ抜けていきなりstdoutなどがcloseされるので要注意… 
+        loop do
+          break if stdout.eof? && stderr.eof?  # ← 起動したプログラムの出力が多い場合、バッファをreadする前に子プロセスが終了すると、ブロックを抜けた瞬間にIOオブジェクトがcloseするので要注意…
+          sleep 1
+        end
       rescue Exception => e
         log "spawn failed...e=" + e.inspect
       end
